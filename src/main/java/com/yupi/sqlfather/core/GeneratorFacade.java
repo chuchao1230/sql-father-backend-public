@@ -86,7 +86,7 @@ public class GeneratorFacade {
             tableSchema.setMockNum(20);
             mockNum = 20;
         }
-        if (mockNum > 100 || mockNum < 10) {
+        if (mockNum > 10000 || mockNum < 10) {
             throw new SchemaException("生成条数设置错误");
         }
         List<Field> fieldList = tableSchema.getFieldList();
