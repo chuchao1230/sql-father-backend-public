@@ -63,7 +63,9 @@ public class SqlBuilder {
                 + "create table if not exists %s\n"
                 + "(\n"
                 + "%s\n"
-                + ") %s;";
+                + ");\n%s";
+        String commentFiled = "comment on column %s is '%s';\n";
+        String commentTable = "comment on table %s is '%s';";
         // 构造表名
         String tableName = sqlDialect.wrapTableName(tableSchema.getTableName());
         String dbName = tableSchema.getDbName();
@@ -77,7 +79,8 @@ public class SqlBuilder {
         }
         String tablePrefixComment = String.format("-- %s", tableComment);
         // 构造表后缀注释
-        String tableSuffixComment = String.format("comment '%s'", tableComment);
+        StringBuilder tableSuffixComment = new StringBuilder();
+        //String tableSuffixComment = String.format("comment '%s'", tableComment);
         // 构造表字段
         List<Field> fieldList = tableSchema.getFieldList();
         StringBuilder fieldStrBuilder = new StringBuilder();
@@ -90,7 +93,15 @@ public class SqlBuilder {
                 fieldStrBuilder.append(",");
                 fieldStrBuilder.append("\n");
             }
+            // 字段注释
+            String comment = field.getComment();
+            if (StringUtils.isNotBlank(comment)) {
+                String tableField = tableName + "." + field.getFieldName();
+                tableSuffixComment.append(String.format(commentFiled, tableField, comment));
+            }
         }
+        // 表注释
+        tableSuffixComment.append(String.format(commentTable, tableName, tableComment));
         String fieldStr = fieldStrBuilder.toString();
         // 填充模板
         String result = String.format(template, tablePrefixComment, tableName, fieldStr, tableSuffixComment);
@@ -120,26 +131,28 @@ public class SqlBuilder {
         StringBuilder fieldStrBuilder = new StringBuilder();
         // 字段名
         fieldStrBuilder.append(fieldName);
-        // 字段类型
-        fieldStrBuilder.append(" ").append(fieldType);
-        // 默认值
-        if (StringUtils.isNotBlank(defaultValue)) {
-            fieldStrBuilder.append(" ").append("default ").append(getValueStr(field, defaultValue));
-        }
-        // 是否非空
-        fieldStrBuilder.append(" ").append(notNull ? "not null" : "null");
         // 是否自增
         if (autoIncrement) {
-            fieldStrBuilder.append(" ").append("auto_increment");
+            fieldStrBuilder.append(" ").append("serial");
+        } else {
+            // 字段类型
+            fieldStrBuilder.append(" ").append(fieldType);
+            // 默认值
+            if (StringUtils.isNotBlank(defaultValue)) {
+                fieldStrBuilder.append(" ").append("default ").append(getValueStr(field, defaultValue));
+            }
+            // 是否非空
+            fieldStrBuilder.append(" ").append(notNull ? "not null" : "null");
         }
+
         // 附加条件
-        if (StringUtils.isNotBlank(onUpdate)) {
+        /*if (StringUtils.isNotBlank(onUpdate)) {
             fieldStrBuilder.append(" ").append("on update ").append(onUpdate);
-        }
+        }*/
         // 注释
-        if (StringUtils.isNotBlank(comment)) {
+        /*if (StringUtils.isNotBlank(comment)) {
             fieldStrBuilder.append(" ").append(String.format("comment '%s'", comment));
-        }
+        }*/
         // 是否为主键
         if (primaryKey) {
             fieldStrBuilder.append(" ").append("primary key");
