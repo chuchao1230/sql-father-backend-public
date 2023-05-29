@@ -4,11 +4,12 @@ import com.alibaba.druid.sql.ast.statement.SQLColumnDefinition;
 import com.alibaba.druid.sql.ast.statement.SQLCreateTableStatement;
 import com.alibaba.druid.sql.ast.statement.SQLPrimaryKey;
 import com.alibaba.druid.sql.ast.statement.SQLTableElement;
-import com.alibaba.druid.sql.dialect.mysql.parser.MySqlCreateTableParser;
+import com.alibaba.druid.sql.dialect.postgresql.parser.PGCreateTableParser;
 import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.gson.Gson;
 import com.yupi.sqlfather.common.ErrorCode;
+import com.yupi.sqlfather.core.builder.sql.PGSQLDialect;
 import com.yupi.sqlfather.core.schema.TableSchema.Field;
 import com.yupi.sqlfather.core.builder.sql.MySQLDialect;
 import com.yupi.sqlfather.core.model.enums.FieldTypeEnum;
@@ -43,7 +44,7 @@ public class TableSchemaBuilder {
 
     private static FieldInfoService fieldInfoService;
 
-    private static final MySQLDialect sqlDialect = new MySQLDialect();
+    private static final PGSQLDialect sqlDialect = new PGSQLDialect();
 
     @Resource
     public void setFieldInfoService(FieldInfoService fieldInfoService) {
@@ -110,7 +111,8 @@ public class TableSchemaBuilder {
         }
         try {
             // 解析 SQL
-            MySqlCreateTableParser parser = new MySqlCreateTableParser(sql);
+            //MySqlCreateTableParser parser =new MySqlCreateTableParser(sql);
+            PGCreateTableParser parser = new PGCreateTableParser(sql);
             SQLCreateTableStatement sqlCreateTableStatement = parser.parseCreateTable();
             TableSchema tableSchema = new TableSchema();
             tableSchema.setDbName(sqlCreateTableStatement.getSchema());

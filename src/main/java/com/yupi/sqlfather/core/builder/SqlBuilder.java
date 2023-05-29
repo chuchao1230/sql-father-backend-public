@@ -2,11 +2,11 @@ package com.yupi.sqlfather.core.builder;
 
 import cn.hutool.db.dialect.DialectFactory;
 import com.yupi.sqlfather.common.ErrorCode;
+import com.yupi.sqlfather.core.builder.sql.PGSQLDialect;
 import com.yupi.sqlfather.core.builder.sql.SQLDialect;
 import com.yupi.sqlfather.core.builder.sql.SQLDialectFactory;
 import com.yupi.sqlfather.core.model.enums.FieldTypeEnum;
 import com.yupi.sqlfather.core.model.enums.MockTypeEnum;
-import com.yupi.sqlfather.core.builder.sql.MySQLDialect;
 import com.yupi.sqlfather.core.schema.TableSchema;
 import com.yupi.sqlfather.core.schema.TableSchema.Field;
 import com.yupi.sqlfather.exception.BusinessException;
@@ -34,7 +34,8 @@ public class SqlBuilder {
     private SQLDialect sqlDialect;
 
     public SqlBuilder() {
-        this.sqlDialect = SQLDialectFactory.getDialect(MySQLDialect.class.getName());
+        this.sqlDialect =
+                SQLDialectFactory.getDialect(PGSQLDialect.class.getName());
     }
 
     public SqlBuilder(SQLDialect sqlDialect) {
