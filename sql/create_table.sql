@@ -5,7 +5,7 @@ create database if not exists sqlfather;
 use sqlfather;
 
 -- 用户表
-create table if not exists user
+create table if not exists user_info
 (
     id           bigint auto_increment comment 'id' primary key,
     userName     varchar(256)                           null comment '用户昵称',
