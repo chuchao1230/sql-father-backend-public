@@ -21,6 +21,12 @@ spring:
 server:
   address: 0.0.0.0
   port: 8102
+  ssl:
+    enabled: true
+    key-store: classpath:keystore.jks
+    key-store-password: 900409
+    keyStoreType: JKS
+    keyAlias: mycert
   servlet:
     context-path: /api
     # session 30 天过期
@@ -29,6 +35,7 @@ server:
       cookie:
         same-site: none
         secure: true
+
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: false
