@@ -41,6 +41,6 @@ public class XmlController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         // 获取 tableSchema
-        return ResultUtils.success(TableSchemaBuilder.buildFromSql(xmlRequest.getXml()));
+        return ResultUtils.success(TableSchemaBuilder.buildFromXml(xmlRequest.getXml()));
     }
 }

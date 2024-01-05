@@ -1,5 +1,6 @@
 package com.yupi.sqlfather.core.schema;
 
+import cn.hutool.core.util.XmlUtil;
 import com.alibaba.druid.sql.ast.statement.SQLColumnDefinition;
 import com.alibaba.druid.sql.ast.statement.SQLCreateTableStatement;
 import com.alibaba.druid.sql.ast.statement.SQLPrimaryKey;
@@ -10,10 +11,9 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.google.gson.Gson;
 import com.yupi.sqlfather.common.ErrorCode;
 import com.yupi.sqlfather.core.builder.sql.PGSQLDialect;
-import com.yupi.sqlfather.core.schema.TableSchema.Field;
-import com.yupi.sqlfather.core.builder.sql.MySQLDialect;
 import com.yupi.sqlfather.core.model.enums.FieldTypeEnum;
 import com.yupi.sqlfather.core.model.enums.MockTypeEnum;
+import com.yupi.sqlfather.core.schema.TableSchema.Field;
 import com.yupi.sqlfather.exception.BusinessException;
 import com.yupi.sqlfather.model.entity.FieldInfo;
 import com.yupi.sqlfather.service.FieldInfoService;
@@ -24,6 +24,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -173,6 +176,42 @@ public class TableSchemaBuilder {
         } catch (Exception e) {
             log.error("SQL 解析错误", e);
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "请确认 SQL 语句正确");
+        }
+    }
+
+    /**
+     * 根据xml 构建
+     *
+     * @param xml xml数据
+     * @return 生成的 TableSchema
+     */
+    public static TableSchema buildFromXml(String xml) {
+        if (StringUtils.isBlank(xml)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        try {
+            TableSchema tableSchema = new TableSchema();
+            Document document = XmlUtil.parseXml(xml);
+            Element dataNameElement = (Element) document.getElementsByTagName("DATA_NAME").item(0);
+            String tableName = dataNameElement.getTextContent();
+            tableSchema.setTableName(tableName);
+            List<Field> fieldList = new ArrayList<>();
+            NodeList fieldNodes = document.getElementsByTagName("FIELD");
+            for (int i = 0; i < fieldNodes.getLength(); i++) {
+                Element fieldElement = (Element) fieldNodes.item(i);
+                String type = fieldElement.getAttribute("TYPE");
+                String fieldName = fieldElement.getTextContent();
+                Field field = new Field();
+                field.setFieldName(fieldName);
+                field.setFieldType(type);
+                field.setMockType(MockTypeEnum.NONE.getValue());
+                fieldList.add(field);
+            }
+            tableSchema.setFieldList(fieldList);
+            return tableSchema;
+        } catch (Exception e) {
+            log.error("xml 解析错误", e);
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "请确认 xml格式正确");
         }
     }
 
